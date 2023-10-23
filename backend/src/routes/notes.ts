@@ -15,6 +15,4 @@ notesRouter.get('/:id', getNoteById);
 // src/routes/notes.ts
 notesRouter.put('/:id', updateNote);
 
-
-
 export default notesRouter;

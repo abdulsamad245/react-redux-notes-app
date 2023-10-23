@@ -1,18 +1,3 @@
-// import mongoose, { Document, Schema } from 'mongoose';
-
-// export interface IUser extends Document {
-//   password: string;
-//   email: string;
-// }
-
-// const UserSchema = new Schema<IUser>({
-//   password: { type: String, required: true },
-//   email: { type: String, required: true, unique: true },
-// });
-
-// export const User = mongoose.model<IUser>('User', UserSchema);
-
-// src/models/User.ts
 import mongoose, { Document, Schema } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 
