@@ -12,17 +12,7 @@ export const listNotes = () => async (dispatch, getState) => {
         type: NOTES_LIST_REQUEST,
       });
   
-      const {
-        userLogin: { userInfo },
-      } = getState();
-  
-      const config = {
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
-  
-      const { data } = await axios.get(`/api/notes`, config);
+      const { data } = await axios.get(`/notes/`);
   
       dispatch({
         type: NOTES_LIST_SUCCESS,
@@ -39,8 +29,32 @@ export const listNotes = () => async (dispatch, getState) => {
       });
     }
 };
+
+export const getNoteById = (userId) => async (dispatch) => {
+  try {
+    dispatch({
+      type: NOTE_GET_BY_ID_REQUEST,
+    });
+    const noteId = req.params.id;
+    const { data } = await axios.get(`/notes/${noteId}`);
+
+    dispatch({
+      type: NOTE_GET_BY_ID_SUCCESS,
+      payload: data,
+    });
+  } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message;
+    dispatch({
+      type: NOTE_GET_BY_ID_FAIL,
+      payload: message,
+    });
+  }
+};
   
-export const createNoteAction = (title, content, category) => async (
+export const createNoteAction = (title, content, userId) => async (
     dispatch,
     getState
   ) => {
@@ -49,21 +63,9 @@ export const createNoteAction = (title, content, category) => async (
         type: NOTES_CREATE_REQUEST,
       });
   
-      const {
-        userLogin: { userInfo },
-      } = getState();
-  
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
-  
       const { data } = await axios.post(
-        `/api/notes/create`,
-        { title, content, category },
-        config
+        `/notes/`,
+        { title, content, userId }
       );
   
       dispatch({
@@ -82,23 +84,14 @@ export const createNoteAction = (title, content, category) => async (
     }
 };
   
-export const deleteNoteAction = (id) => async (dispatch, getState) => {
+export const deleteNoteAction = (UserId) => async (dispatch, getState) => {
     try {
       dispatch({
         type: NOTES_DELETE_REQUEST,
       });
   
-      const {
-        userLogin: { userInfo },
-      } = getState();
-  
-      const config = {
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
-  
-      const { data } = await axios.delete(`/api/notes/${id}`, config);
+      const id = req.params.id;
+      const { data } = await axios.delete(`/notes/${id}`, config);
   
       dispatch({
         type: NOTES_DELETE_SUCCESS,
@@ -116,7 +109,7 @@ export const deleteNoteAction = (id) => async (dispatch, getState) => {
     }
 };
   
-export const updateNoteAction = (id, title, content, category) => async (
+export const updateNoteAction = (title, content, userId) => async (
     dispatch,
     getState
   ) => {
@@ -125,20 +118,10 @@ export const updateNoteAction = (id, title, content, category) => async (
         type: NOTES_UPDATE_REQUEST,
       });
   
-      const {
-        userLogin: { userInfo },
-      } = getState();
-  
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
-  
+      const id = req.params.id;
       const { data } = await axios.put(
-        `/api/notes/${id}`,
-        { title, content, category },
+        `/notes/${id}`,
+        { title, content, userId },
         config
       );
   
