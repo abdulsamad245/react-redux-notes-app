@@ -4,8 +4,9 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon backend/server.js",
-    "server": "nodemon backend/server",
+    "start": "nodemon backend/dist/server.js",
+    "server": "nodemon backend/dist/server",
+    "dev:backend": "nodemon --exec ts-node backend/src/server.ts",
     "client": "npm start --prefix frontend",
     "dev": "concurrently \"npm start\" \"npm run client\"",
     "data:import": "node backend/seeder",

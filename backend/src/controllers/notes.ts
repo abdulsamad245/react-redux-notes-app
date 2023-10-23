@@ -1,9 +1,15 @@
-import { Request, Response } from "express";
-import { Note, INote } from "../models/Note";
+import { Request, Response } from 'express';
+import { Note, INote } from '../models/Note';
 
 export const getNotes = async (req: Request, res: Response) => {
   try {
-    const notes = await Note.find({}).exec(); 
+    const userId = req.params.user;
+
+    if (!userId) {
+      return res.status(401).send('Unauthorized');
+    }
+
+    const notes = await Note.find({ user: userId }).exec();
     res.json(notes);
   } catch (error) {
     res.status(500).send('Internal Server Error');
@@ -12,7 +18,11 @@ export const getNotes = async (req: Request, res: Response) => {
 
 export const createNote = async (req: Request, res: Response) => {
   try {
-    const { title, content, userId } = req.body; 
+    const { title, content, userId } = req.body;
+
+    if (!userId) {
+      return res.status(401).send('Unauthorized');
+    }
 
     const newNote: INote = new Note({
       title,
@@ -23,25 +33,31 @@ export const createNote = async (req: Request, res: Response) => {
     const savedNote = await newNote.save();
     res.json(savedNote);
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).send('Internal Server Error');
   }
 };
 
 export const deleteNote = async (req: Request, res: Response) => {
   try {
     const noteId = req.params.id;
+    const userId = req.params.user; 
+
+    if (!userId) {
+      return res.status(401).send('Unauthorized');
+    }
 
     const deletedNote = await Note.findOneAndDelete({
       _id: noteId,
+      user: userId,
     }).exec();
 
     if (!deletedNote) {
-      return res.status(404).send("Note not found");
+      return res.status(404).send('Note not found');
     }
 
-    res.send("Note deleted successfully");
+    res.send('Note deleted successfully');
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).send('Internal Server Error');
   }
 };
 
@@ -49,6 +65,9 @@ export const updateNote = async (req: Request, res: Response) => {
   try {
     const noteId = req.params.id;
     const { title, content, userId } = req.body; 
+    if (!userId) {
+      return res.status(401).send('Unauthorized');
+    }
 
     const updatedNote = await Note.findOneAndUpdate(
       { _id: noteId, user: userId },
@@ -57,27 +76,32 @@ export const updateNote = async (req: Request, res: Response) => {
     ).exec();
 
     if (!updatedNote) {
-      return res.status(404).send("Note not found");
+      return res.status(404).send('Note not found');
     }
 
     res.json(updatedNote);
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).send('Internal Server Error');
   }
 };
 
 export const getNoteById = async (req: Request, res: Response) => {
   try {
     const noteId = req.params.id;
+    const userId = req.params.user; 
 
-    const note = await Note.findOne({ _id: noteId }).exec();
+    if (!userId) {
+      return res.status(401).send('Unauthorized');
+    }
+
+    const note = await Note.findOne({ _id: noteId, user: userId }).exec();
 
     if (!note) {
-      return res.status(404).send("Note not found");
+      return res.status(404).send('Note not found');
     }
 
     res.json(note);
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).send('Internal Server Error');
   }
 };

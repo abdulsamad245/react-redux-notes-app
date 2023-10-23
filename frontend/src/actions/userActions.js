@@ -10,7 +10,8 @@ import {
     USER_UPDATE_FAIL,
     USER_UPDATE_REQUEST,
     USER_UPDATE_SUCCESS,
-    USER_LOGOUT_SUCCESS
+    USER_LOGOUT_SUCCESS,
+    USER_LOGOUT_FAIL
   } from "../constants/userConstants";
 import axios from "axios";
 
@@ -98,35 +99,25 @@ export const register = (email, password) => async (dispatch) => {
     }
 };
 
-// export const updateProfile = (user) => async (dispatch, getState) => {
-//     try {
-//       dispatch({ type: USER_UPDATE_REQUEST });
+export const updateProfile = (user) => async (dispatch, getState) => {
+    try {
+      dispatch({ type: USER_UPDATE_REQUEST });
+
   
-//       const {
-//         userLogin: { userInfo },
-//       } = getState();
+      const { data } = await axios.post("/api/users/profile", user);
   
-//       const config = {
-//         headers: {
-//           "Content-Type": "application/json",
-//           Authorization: `Bearer ${userInfo.token}`,
-//         },
-//       };
+      dispatch({ type: USER_UPDATE_SUCCESS, payload: data });
   
-//       const { data } = await axios.post("/api/users/profile", user, config);
+      dispatch({ type: USER_LOGIN_SUCCESS, payload: data });
   
-//       dispatch({ type: USER_UPDATE_SUCCESS, payload: data });
-  
-//       dispatch({ type: USER_LOGIN_SUCCESS, payload: data });
-  
-//       localStorage.setItem("userInfo", JSON.stringify(data));
-//     } catch (error) {
-//       dispatch({
-//         type: USER_UPDATE_FAIL,
-//         payload:
-//           error.response && error.response.data.message
-//             ? error.response.data.message
-//             : error.message,
-//       });
-//     }
-//   };
+      localStorage.setItem("userInfo", JSON.stringify(data));
+    } catch (error) {
+      dispatch({
+        type: USER_UPDATE_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+    }
+  };

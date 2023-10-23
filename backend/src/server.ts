@@ -1,35 +1,31 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import session from 'express-session';
 import passport from 'passport';
-import dotenv from 'dotenv'; // Import dotenv
-import authRouter from './routes/auth';
-import notesRouter from './routes/notes';
+import { Strategy as LocalStrategy } from 'passport-local';
+import { User, IUser } from './models/User';
 
-dotenv.config(); // Load environment variables from .env file
 
-const app = express();
-const port = process.env.PORT || 3000;
-const dbUrl = process.env.MONGODB_URI || 'mongodb://localhost:27017/notes_db';
-const sessionSecret = process.env.SESSION_SECRET || 'your-secret-key';
+passport.use(new LocalStrategy((username, password, done) => {
+  User.findOne({ username }, (err: Error | null, user: IUser | null) => { // Specify the types of 'err' and 'user'
+    if (err) {
+      return done(err);
+    }
+    if (!user) {
+      return done(null, false, { message: 'Incorrect username' });
+    }
+    if (user.password !== password) {
+      return done(null, false, { message: 'Incorrect password' });
+    }
+    return done(null, user);
+  });
+}));
 
-app.use(express.json());
-app.use(session({ secret: sessionSecret, resave: false, saveUninitialized: false }));
-app.use(passport.initialize());
-app.use(passport.session());
 
-mongoose
-    .connect(dbUrl, { retryWrites: true, w: 'majority' })
-    .then(() => {
-        console.info('Mongo connected successfully.');
-        // StartServer();
-    })
-    .catch((error) => console.error(error));
-  
 
-app.use('/auth', authRouter);
-app.use('/notes', notesRouter);
+passport.serializeUser((user: any, done) => {
+  done(null, user.id);
+});
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+passport.deserializeUser((id, done) => {
+  User.findById(id, (err: Error | any, user: IUser | null) => {
+    done(err, user);
+  });
 });
